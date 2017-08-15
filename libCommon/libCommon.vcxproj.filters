@@ -1,0 +1,107 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <None Include="debug.mak">
+      <Filter>Make files</Filter>
+    </None>
+    <None Include="release.mak">
+      <Filter>Make files</Filter>
+    </None>
+    <None Include="Makefile">
+      <Filter>Make files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="jsoncpp">
+      <UniqueIdentifier>{de95d319-8adf-42fd-980d-8b2909ee2644}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="jsoncpp\json">
+      <UniqueIdentifier>{8c3b81a8-63b3-4b51-b26b-a0413feb4871}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header files">
+      <UniqueIdentifier>{3354e340-58b7-47b1-b028-cd5c015760f5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Make files">
+      <UniqueIdentifier>{0a0994ac-4441-46bc-a72f-309a1a29ade7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source files">
+      <UniqueIdentifier>{e3b7eadc-c82f-461c-83ab-c9a7d3a72137}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="jsoncpp\jsoncpp.cpp">
+      <Filter>jsoncpp</Filter>
+    </ClCompile>
+    <ClCompile Include="CodeConverter.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="HttpSender.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="logging.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="md5.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="RedisHelp.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="Semaphore.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="SimpleProfiler.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="Helper.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="jsoncpp\json\json.h">
+      <Filter>jsoncpp\json</Filter>
+    </ClInclude>
+    <ClInclude Include="jsoncpp\json\json-forwards.h">
+      <Filter>jsoncpp\json</Filter>
+    </ClInclude>
+    <ClInclude Include="CodeConverter.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="CommonDef.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="hiredis.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="HttpSender.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="logging.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="md5.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="mutex.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="RedisHelp.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="Semaphore.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="SimpleProfiler.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="timer.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="thread.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="Helper.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
