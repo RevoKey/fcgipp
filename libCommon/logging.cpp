@@ -16,6 +16,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <dirent.h>
+#include <fcntl.h>
 
 #include "mutex.h"
 #include "thread.h"
@@ -26,9 +27,9 @@ namespace common {
 	int g_log_level = INFO;
 	int64_t g_log_size = 0;
 	int32_t g_log_count = 0;
-	FILE* g_log_file = stdout;
+	int g_log_fd = STDOUT_FILENO;
 	std::string g_log_file_name;
-	FILE* g_warning_file = NULL;
+	int g_warning_fd = 0;
 	int64_t g_total_size_limit = 0;
 
 	std::set<std::string> g_log_set;
@@ -55,15 +56,17 @@ namespace common {
 		else {
 			idx += 1;
 		}
-		const char* mode = append ? "ab" : "wb";
-		FILE* fp = fopen(full_path.c_str(), mode);
-		if (fp == NULL) {
+		int flags = append ? (O_CREAT | O_APPEND | O_WRONLY) : (O_CREAT | O_WRONLY);
+		int fd = ::open(full_path.c_str(), flags, 0664);
+		if (fd < 0)
+		{
 			return false;
 		}
-		if (g_log_file != stdout) {
-			fclose(g_log_file);
+		if (g_log_fd != STDOUT_FILENO)
+		{
+			::close(g_log_fd);
 		}
-		g_log_file = fp;
+		g_log_fd = fd;
 		remove(g_log_file_name.c_str());
 		symlink(full_path.substr(idx).c_str(), g_log_file_name.c_str());
 		g_log_set.insert(full_path);
@@ -132,6 +135,14 @@ namespace common {
 				delete buffer_queue_;
 				delete bg_queue_;
 				// close fd
+				if (g_warning_fd)
+				{
+					::close(g_warning_fd);
+				}
+				if (g_log_fd)
+				{
+					::close(g_log_fd);
+				}
 			}
 		}
 		void Start() {
@@ -152,17 +163,17 @@ namespace common {
 					int log_level = bg_queue_->front().first;
 					std::string* str = bg_queue_->front().second;
 					bg_queue_->pop();
-					if (g_log_file != stdout && g_log_size && str &&
+					if (g_log_fd != STDOUT_FILENO && g_log_size && str &&
 						static_cast<int64_t>(size_ + str->length()) > g_log_size) {
 						current_total_size += static_cast<int64_t>(size_ + str->length());
 						GetNewLog(false);
 						size_ = 0;
 					}
 					if (str && !str->empty()) {
-						size_t lret = fwrite(str->data(), 1, str->size(), g_log_file);
+						size_t lret = ::write(g_log_fd, str->data(), str->size());
 						loglen += lret;
-						if (g_warning_file && log_level >= 8) {
-							size_t wret = fwrite(str->data(), 1, str->size(), g_warning_file);
+						if (g_warning_fd && log_level >= LogLevel::WARN) {
+							size_t wret = ::write(g_log_fd, str->data(), str->size());
 							wflen += wret;
 						}
 						if (g_log_size) size_ += lret;
@@ -174,8 +185,6 @@ namespace common {
 					std::swap(buffer_queue_, bg_queue_);
 					continue;
 				}
-				if (loglen) fflush(g_log_file);
-				if (wflen) fflush(g_warning_file);
 				done_.Broadcast();
 				if (stopped_) {
 					break;
@@ -208,16 +217,19 @@ namespace common {
 		g_logger.Start();
 	}
 
-	bool SetWarningFile(const char* path, bool append) {
-		const char* mode = append ? "ab" : "wb";
-		FILE* fp = fopen(path, mode);
-		if (fp == NULL) {
+	bool SetWarningFile(const char* path, bool append)
+	{
+		int flags = append ? (O_CREAT | O_APPEND | O_WRONLY) : (O_CREAT | O_WRONLY);
+		int fd = ::open(path, flags, 0664);
+		if (fd < 0)
+		{
 			return false;
 		}
-		if (g_warning_file) {
-			fclose(g_warning_file);
+		if (g_warning_fd != STDOUT_FILENO)
+		{
+			::close(g_warning_fd);
 		}
-		g_warning_file = fp;
+		g_warning_fd = fd;
 		return true;
 	}
 
@@ -315,11 +327,11 @@ namespace common {
 		static __thread int tid_str_len = 0;
 		if (process_id == 0) {
 			process_id = syscall(__NR_getpid);
-			pid_str_len = snprintf(pid_str, sizeof(pid_str), " %d", static_cast<int32_t>(process_id));
+			pid_str_len = snprintf(pid_str, sizeof(pid_str), "|%d", static_cast<int32_t>(process_id));
 		}
 		if (thread_id == 0) {
 			thread_id = syscall(__NR_gettid);
-			tid_str_len = snprintf(tid_str, sizeof(tid_str), " %d ", static_cast<int32_t>(thread_id));
+			tid_str_len = snprintf(tid_str, sizeof(tid_str), "|%d|", static_cast<int32_t>(thread_id));
 		}
 
 		int cur_level_len = 0;
@@ -362,7 +374,7 @@ namespace common {
 
 			int32_t rlen = timer::now_time_str(p, limit - p);
 			p += rlen;
-			*p++ = ' ';
+			*p++ = '|';
 			memcpy(p, cur_level, cur_level_len);
 			p += cur_level_len;
 			memcpy(p, pid_str, pid_str_len);
